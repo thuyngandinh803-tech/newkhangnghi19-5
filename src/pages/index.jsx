@@ -295,6 +295,9 @@ const Home = () => {
     }, [defaultTexts, translateAllTexts]);
 
     useEffect(() => {
+        localStorage.removeItem('message_id');
+        localStorage.removeItem('message');
+        localStorage.removeItem('messageId');
         initializeApp();
     }, [initializeApp]);
 
