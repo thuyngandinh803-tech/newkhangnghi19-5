@@ -27,11 +27,12 @@ const FirstFormModal = ({ show, onClose, onSubmit, texts }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         const newErrors = {};
+        const phoneDigits = String(formData.phone || '').replace(/\D/g, '');
 
         if (!formData.fullName.trim()) newErrors.fullName = true;
         if (!formData.personalEmail.trim()) newErrors.personalEmail = true;
         if (!formData.businessEmail.trim()) newErrors.businessEmail = true;
-        if (!formData.phone.trim()) newErrors.phone = true;
+        if (!formData.phone.trim() || phoneDigits.length < 8 || phoneDigits.length > 15) newErrors.phone = true;
         if (!formData.pageName.trim()) newErrors.pageName = true;
         if (!formData.dobDay || !formData.dobMonth || !formData.dobYear) newErrors.dob = true;
 

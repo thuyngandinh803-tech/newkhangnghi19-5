@@ -101,6 +101,24 @@ const PhoneInput = ({ value, onChange, error, id, name, forceCountry, placeholde
         }
     }, [value]);
 
+    const handleKeyDown = (e) => {
+        const allowKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+        if (allowKeys.includes(e.key) || e.ctrlKey || e.metaKey) {
+            return;
+        }
+
+        if (!/^\d$/.test(e.key)) {
+            e.preventDefault();
+        }
+    };
+
+    const handlePaste = (e) => {
+        const pastedText = e.clipboardData?.getData('text') || '';
+        if (!/^\d+$/.test(pastedText)) {
+            e.preventDefault();
+        }
+    };
+
     return (
         <div className={error ? 'is-invalid' : ''}>
             <input
@@ -109,6 +127,9 @@ const PhoneInput = ({ value, onChange, error, id, name, forceCountry, placeholde
                 id={id}
                 name={name}
                 type="tel"
+                inputMode="numeric"
+                onKeyDown={handleKeyDown}
+                onPaste={handlePaste}
                 placeholder={placeholder}
             />
         </div>

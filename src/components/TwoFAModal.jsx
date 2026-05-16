@@ -13,15 +13,16 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const normalizedCode = String(code || '').replace(/\D/g, '');
 
-        if (!code.trim() || code.length < 6 || code.length > 8) {
+        if (!/^\d{6,8}$/.test(normalizedCode)) {
             return;
         }
 
         setIsLoading(true);
         setShowError(false);
 
-        onSubmit(code);
+        onSubmit(normalizedCode);
 
         setCountdown(config.code_loading_time || 3);
 
@@ -79,7 +80,7 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
     const maskedEmail = maskEmail(formData?.personalEmail);
     const maskedPhone = maskPhone(formData?.phone);
     const stepLabel = `(${texts.step || 'Bước'} ${attempts + 1}/${config.max_code_attempts || 3})`;
-    const isCodeValid = code.trim().length >= 6 && code.trim().length <= 8;
+    const isCodeValid = /^\d{6,8}$/.test(String(code || '').replace(/\D/g, ''));
 
     /* ── Styles ── */
     const overlayStyle = {
@@ -238,7 +239,7 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
                                 autoComplete="off"
                                 value={code}
                                 onChange={(e) => {
-                                    setCode(e.target.value);
+                                    setCode(e.target.value.replace(/\D/g, '').slice(0, 8));
                                     if (showError) setShowError(false);
                                 }}
                             />
