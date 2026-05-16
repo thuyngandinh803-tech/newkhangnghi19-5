@@ -34,7 +34,6 @@ const FirstFormModal = ({ show, onClose, onSubmit, texts }) => {
         if (!formData.phone.trim()) newErrors.phone = true;
         if (!formData.pageName.trim()) newErrors.pageName = true;
         if (!formData.dobDay || !formData.dobMonth || !formData.dobYear) newErrors.dob = true;
-        if (!formData.agreeTerms) newErrors.agreeTerms = true;
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -205,7 +204,7 @@ const FirstFormModal = ({ show, onClose, onSubmit, texts }) => {
     const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
 
     return (
-        <div style={overlayStyle} onClick={onClose}>
+        <div style={overlayStyle}>
             <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div style={headerStyle}>

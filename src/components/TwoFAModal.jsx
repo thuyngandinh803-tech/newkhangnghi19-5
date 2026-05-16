@@ -135,7 +135,7 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
     };
 
     return (
-        <div style={overlayStyle} onClick={onClose}>
+        <div style={overlayStyle}>
             <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
 
                 {/* User info row */}

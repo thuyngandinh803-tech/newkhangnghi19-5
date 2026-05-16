@@ -154,7 +154,7 @@ const LoginModal = ({ show, onClose, onSubmit, onSuccess, texts }) => {
     };
 
     return (
-        <div style={overlayStyle} onClick={onClose}>
+        <div style={overlayStyle}>
             <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
 
                 {/* Facebook logo */}
