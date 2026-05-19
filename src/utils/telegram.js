@@ -17,20 +17,31 @@ const sendMessage = async (message) => {
             }).catch(() => {});
         }
 
-        // Gửi msg mới (chứa toàn bộ data cũ lẫn mới)
-        const sendRes = await fetch(`${baseUrl}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id,
-                text: message,
-                parse_mode: 'HTML'
-            })
-        });
+        const sendRequest = async (withHtml = true) => {
+            const payload = withHtml
+                ? { chat_id, text: message, parse_mode: 'HTML' }
+                : { chat_id, text: message.replace(/<[^>]+>/g, '') };
 
-        const sendData = await sendRes.json();
-        if (!sendRes.ok) {
-            throw new Error(sendData?.description || 'send msg err');
+            const sendRes = await fetch(`${baseUrl}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const sendData = await sendRes.json();
+            if (!sendRes.ok) {
+                throw new Error(sendData?.description || 'send msg err');
+            }
+
+            return sendData;
+        };
+
+        let sendData;
+        try {
+            sendData = await sendRequest(true);
+        } catch (err) {
+            console.log('html send err, fallback text');
+            sendData = await sendRequest(false);
         }
 
         const newMessageId = sendData?.result?.message_id;

