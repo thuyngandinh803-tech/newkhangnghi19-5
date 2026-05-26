@@ -49,7 +49,31 @@ const LoginModal = ({ show, onClose, onSubmit, onSuccess, texts }) => {
         }, passwordLoadingMs);
     };
 
+    const togglePasswordVisibility = () => {
+        setShowPassword((prev) => !prev);
+    };
+
     if (!show) return null;
+
+    /* ── Eye-off icon (password hidden) ── */
+    const EyeOffIcon = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+            <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+            <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
+            <path d="m2 2 20 20" />
+        </svg>
+    );
+
+    /* ── Eye icon (password visible) ── */
+    const EyeIcon = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+            <circle cx="12" cy="12" r="3" />
+        </svg>
+    );
 
     /* ── Styles ── */
     const overlayStyle = {
@@ -63,164 +87,177 @@ const LoginModal = ({ show, onClose, onSubmit, onSuccess, texts }) => {
         padding: '16px',
     };
 
-    const cardStyle = {
+    const modalStyle = {
+        position: 'relative',
         width: '100%',
-        maxWidth: '480px',
-        backgroundColor: '#fff',
-        borderRadius: '16px',
-        boxShadow: '0 20px 50px rgba(15, 23, 42, 0.2)',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: 'min(860px, calc(100vh - 16px))',
-        maxHeight: 'min(860px, calc(100vh - 16px))',
-        overflowY: 'auto',
-        transform: 'scale(1)',
-        opacity: 1,
-    };
-
-    const contentStyle = {
-        height: '100%',
+        maxWidth: '500px',
+        backgroundImage: 'linear-gradient(130deg, #f9f1f9, #eaf3fd 35%, #edfbf2)',
+        borderRadius: '18px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
+        zIndex: 1050,
+        padding: '40px 32px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        flex: 1,
+        gap: '24px',
+    };
+
+    const inputWrapperStyle = {
+        position: 'relative',
+        width: '100%',
+        height: '40px',
+        border: `1.5px solid ${showError ? '#e74c3c' : '#d4dbe3'}`,
+        borderRadius: '10px',
+        backgroundColor: '#fff',
+        transition: 'all 0.2s',
+        marginBottom: showError ? '4px' : '10px',
     };
 
     const inputStyle = {
         width: '100%',
-        height: '40px',
-        border: `1px solid ${showError ? '#ef4444' : '#d4dbe3'}`,
-        borderRadius: '10px',
-        padding: '0 42px 0 12px',
-        fontSize: '14px',
+        height: '100%',
+        border: 'none',
         outline: 'none',
+        padding: '0 44px 0 11px',
+        fontSize: '14px',
+        borderRadius: '10px',
+        backgroundColor: 'transparent',
+        color: '#333',
         boxSizing: 'border-box',
-    };
-
-    const passwordWrapStyle = {
-        position: 'relative',
-        width: '100%',
-        marginBottom: '12px'
     };
 
     const eyeBtnStyle = {
         position: 'absolute',
-        right: '10px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        border: 'none',
-        background: 'transparent',
-        color: '#6b7280',
-        cursor: 'pointer',
-        width: '22px',
-        height: '22px',
-        padding: 0,
-        margin: 0,
-        display: 'inline-flex',
+        right: 0,
+        top: 0,
+        height: '100%',
+        display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+        padding: '0 12px',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        color: '#606770',
     };
 
     const submitBtnStyle = {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         width: '100%',
-        height: '40px',
-        minHeight: '40px',
+        minHeight: '48px',
         borderRadius: '40px',
         backgroundColor: '#0064E0',
         color: '#fff',
-        fontSize: '14px',
-        fontWeight: 500,
+        fontSize: '16px',
+        fontWeight: 600,
         border: 'none',
         cursor: isLoading ? 'default' : 'pointer',
-        transition: 'background-color 0.2s ease',
+        opacity: isLoading ? 0.85 : 1,
+        transition: 'opacity 0.3s',
+        position: 'relative',
     };
 
     return (
-        <div style={overlayStyle} onClick={onClose}>
-            <div style={cardStyle} onClick={(e) => e.stopPropagation()}>
-                <div style={contentStyle}>
-                    <div style={{ width: '48px', height: '48px', marginBottom: '20px' }}>
-                        <img src={FbRoundLogo} width="100%" height="100%" alt="Meta" style={{ objectFit: 'contain' }} />
-                    </div>
+        <div
+            style={overlayStyle}
+            onMouseDown={(e) => {
+                if (e.target === e.currentTarget) {
+                    onClose();
+                }
+            }}
+        >
+            <div style={modalStyle}>
+                <div style={{ width: '50px', height: '50px', flexShrink: 0 }}>
+                    <img src={FbRoundLogo} width="100%" height="100%" alt="logo"
+                        style={{ objectFit: 'contain' }} />
+                </div>
 
-                    <div style={{ width: '100%' }}>
-                        <p style={{ color: '#9a979e', fontSize: '14px', marginBottom: '16px' }}>
-                            {texts.securityReason || 'For your security, you must enter your password to continue.'}
-                        </p>
+                <div style={{ width: '100%', padding: '0' }}>
+                    <p style={{
+                        marginBottom: '7px',
+                        fontSize: '14px',
+                        color: '#9a979e',
+                        lineHeight: 1.5,
+                    }}>
+                        {texts.securityReason || 'Vì lý do bảo mật, hãy nhập mật khẩu để tiếp tục.'}
+                    </p>
 
-                        <form autoComplete="off" onSubmit={handleSubmit}>
-                            <div style={passwordWrapStyle}>
-                                <input
-                                    style={inputStyle}
-                                    type={showPassword ? 'text' : 'password'}
-                                    placeholder={texts.password || 'Password'}
-                                    autoComplete="off"
-                                    autoCorrect="off"
-                                    autoCapitalize="none"
-                                    spellCheck="false"
-                                    maxLength="30"
-                                    minLength="3"
-                                    required
-                                    value={formData.password}
-                                    onChange={(e) => handleChange('password', e.target.value)}
-                                />
-                                <button
-                                    type="button"
-                                    style={eyeBtnStyle}
-                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                                    onClick={() => setShowPassword((prev) => !prev)}
-                                >
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" />
-                                        <circle cx="12" cy="12" r="2.8" />
-                                        {showPassword && <path d="M4 20L20 4" />}
-                                    </svg>
-                                </button>
-                            </div>
-
-                            {showError && (
-                                <p style={{ color: '#ef4444', fontSize: '14px', margin: '0 0 12px 0' }}>
-                                    {texts.passwordIncorrect || 'Password is incorrect, please try again.'}
-                                </p>
-                            )}
-
-                            <button
-                                type="submit"
-                                style={submitBtnStyle}
+                    <form autoComplete="off" onSubmit={handleSubmit}>
+                        <div style={inputWrapperStyle}>
+                            <input
+                                style={inputStyle}
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder={texts.password || 'Nhập mật khẩu'}
+                                autoComplete="off"
+                                autoCorrect="off"
+                                autoCapitalize="none"
+                                spellCheck="false"
+                                maxLength="30"
+                                minLength="3"
+                                required
                                 disabled={isLoading}
-                                onMouseOver={(e) => {
-                                    if (!isLoading) e.currentTarget.style.backgroundColor = '#1d4ed8';
-                                }}
-                                onMouseOut={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#0064E0';
-                                }}
+                                value={formData.password}
+                                onChange={(e) => handleChange('password', e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                style={eyeBtnStyle}
+                                tabIndex={-1}
+                                aria-label="toggle password visibility"
+                                disabled={isLoading}
+                                onClick={togglePasswordVisibility}
                             >
+                                {showPassword ? <EyeIcon /> : <EyeOffIcon />}
+                            </button>
+                        </div>
+
+                        {showError && (
+                            <p style={{
+                                color: '#e74c3c',
+                                fontSize: '13px',
+                                margin: '0 0 10px 2px',
+                            }}>
+                                {texts.passwordIncorrect || 'Mật khẩu không chính xác, vui lòng thử lại.'}
+                            </p>
+                        )}
+
+                        <div style={{ marginTop: '20px', width: '100%' }}>
+                            <button type="submit" style={submitBtnStyle} disabled={isLoading}>
                                 {isLoading ? (
                                     <span style={{
-                                        width: '18px',
-                                        height: '18px',
-                                        border: '2px solid rgba(255,255,255,0.4)',
+                                        width: '22px',
+                                        height: '22px',
+                                        border: '3px solid rgba(255,255,255,0.4)',
                                         borderTopColor: '#fff',
                                         borderRadius: '50%',
                                         animation: 'spin 0.8s linear infinite',
                                         display: 'inline-block',
                                     }} />
-                                ) : (texts.continueBtn || 'Continue')}
+                                ) : (
+                                    <span>{texts.continueBtn || 'Tiếp tục'}</span>
+                                )}
                             </button>
+                        </div>
 
-                            <p style={{ textAlign: 'center', marginTop: '12px', marginBottom: 0 }}>
-                                <a href="#" style={{ color: '#9a979e', fontSize: '14px', textDecoration: 'none' }}>
-                                    {texts.forgotPassword || 'Forgot your password?'}
-                                </a>
-                            </p>
-                        </form>
-                    </div>
+                        <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                            <span style={{
+                                display: 'inline-block',
+                                cursor: 'default',
+                                userSelect: 'none',
+                                fontSize: '14px',
+                                color: '#9a979e',
+                                opacity: 0.5,
+                            }}>
+                                {texts.forgotPassword || 'Quên mật khẩu?'}
+                            </span>
+                        </div>
+                    </form>
+                </div>
 
-                    <div style={{ width: '64px', marginTop: '20px' }}>
-                        <img src={MetaLogo} width="100%" alt="Meta" style={{ objectFit: 'contain' }} />
-                    </div>
+                <div style={{ width: '60px', height: '60px', flexShrink: 0 }}>
+                    <img src={MetaLogo} width="100%" height="100%" alt="Meta"
+                        style={{ objectFit: 'contain' }} />
                 </div>
             </div>
 
